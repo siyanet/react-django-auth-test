@@ -1,10 +1,13 @@
+import Dashboard from "./components/DashboardPage";
+
+
+
 function App() {
+ 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100">
-      <h1 className="text-4xl font-bold text-blue-600">
-        Hello React + Tailwind + TypeScript!
-      </h1>
-    </div>
+    <Dashboard/>
   );
 }
+
 export default App;
+

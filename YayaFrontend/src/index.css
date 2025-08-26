@@ -1,1 +1,20 @@
+
 @import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  }
+}
+
+@layer utilities {
+  .blue{
+    color: #37546D;
+  }
+  .purple{
+    color: #7e57c2;
+  }
+  .white{
+    color: #F2F3F7;
+  }
+}
