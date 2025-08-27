@@ -22,12 +22,12 @@ def generate_signature(timestamp, method, endpoint, body, api_secret=None):
         method (str): HTTP method (UPPERCASE)
         endpoint (str): API endpoint path (e.g. /api/en/transaction/find-by-user)
         body (str): JSON string or empty string for GET
-        api_secret (str): API secret (optional, defaults to env)
+        api_secret (str): API secret ( defaults to env)
     Returns:
         str: base64-encoded signature
     """
-    if api_secret is None:
-        api_secret = YAYA_API_SECRET
+   
+    api_secret = YAYA_API_SECRET
     prehash = f"{timestamp}{method.upper()}{endpoint}{body}"
     hmac_digest = hmac.new(api_secret.encode(), prehash.encode(), hashlib.sha256).digest()
     signature = base64.b64encode(hmac_digest).decode()

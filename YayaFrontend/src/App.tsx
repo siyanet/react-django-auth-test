@@ -1,5 +1,5 @@
 import { Provider } from "react-redux";
-import Dashboard from "./components/DashboardPage";
+import Dashboard from "./DashboardPage";
 import { store } from "./store/store";
 
 
