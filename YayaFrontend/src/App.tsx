@@ -1,11 +1,16 @@
+import { Provider } from "react-redux";
 import Dashboard from "./components/DashboardPage";
+import { store } from "./store/store";
 
 
 
 function App() {
  
   return (
-    <Dashboard/>
+     <Provider store={store}>
+      <Dashboard/>
+    </Provider>
+    
   );
 }
 
