@@ -90,16 +90,130 @@ YAYA_BASE_URL = os.getenv('YAYA_BASE_URL', 'https://sandbox.yayawallet.com')
 
 
 
+# @csrf_exempt
+# def fetch_transactions(request):
+#     """
+#     Fetch transactions from YaYa Wallet.
+#     Supports:
+#     - Pagination (p query param)
+#     - Search (query param)
+#     """
+#     account_name = request.GET.get('account_name') or request.POST.get('account_name')
+#     page = request.GET.get('p', '1')
+#     query = request.GET.get('query') or request.POST.get('query')
+
+#     headers = {
+#         'Content-Type': 'application/json',
+#         'YAYA-API-KEY': YAYA_API_KEY,
+#         'YAYA-API-TIMESTAMP': get_timestamp_ms(),
+#     }
+
+#     if query:
+#         # Use search endpoint
+#         endpoint = '/api/en/transaction/search'
+#         method = 'POST'
+#         body = {"query": query}
+#         if account_name:
+#             body["account_name"] = account_name
+#         body_str = json.dumps(body)
+#         headers['YAYA-API-SIGN'] = generate_signature(get_timestamp_ms(), method, endpoint, body_str)
+#         url = f"{YAYA_BASE_URL}{endpoint}"
+#         try:
+#             response = requests.post(url, headers=headers, json=body)
+#             response.raise_for_status()
+#             data = response.json()
+#             return JsonResponse(data)
+#         except requests.RequestException as e:
+#             return JsonResponse({'error': str(e)}, status=500)
+
+#     else:
+#         # Use find-by-user endpoint with pagination
+#         endpoint = '/api/en/transaction/find-by-user'
+#         method = 'GET'
+#         body_str = ''
+#         headers['YAYA-API-SIGN'] = generate_signature(get_timestamp_ms(), method, endpoint, body_str)
+#         params = {}
+#         if account_name:
+#             params['account_name'] = account_name
+#         params['p'] = page
+#         url = f"{YAYA_BASE_URL}{endpoint}"
+#         try:
+#             response = requests.get(url, headers=headers, params=params)
+#             response.raise_for_status()
+#             data = response.json()
+#             return JsonResponse(data)
+#         except requests.RequestException as e:
+#             return JsonResponse({'error': str(e)}, status=500)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import requests
+import json
+from .utils import generate_signature, get_timestamp_ms, YAYA_API_KEY, YAYA_API_SECRET
+import os
+import math
+
+YAYA_BASE_URL = os.getenv('YAYA_BASE_URL', 'https://sandbox.yayawallet.com')
+PER_PAGE = 10  # items per page
+
 @csrf_exempt
 def fetch_transactions(request):
     """
     Fetch transactions from YaYa Wallet.
     Supports:
-    - Pagination (p query param)
+    - Pagination (p query param, default per_page=10)
     - Search (query param)
     """
     account_name = request.GET.get('account_name') or request.POST.get('account_name')
-    page = request.GET.get('p', '1')
+    page = int(request.GET.get('p', '1'))
     query = request.GET.get('query') or request.POST.get('query')
 
     headers = {
@@ -109,10 +223,10 @@ def fetch_transactions(request):
     }
 
     if query:
-        # Use search endpoint
+        # Search endpoint
         endpoint = '/api/en/transaction/search'
         method = 'POST'
-        body = {"query": query}
+        body = {"query": query, "per_page": PER_PAGE, "page": page}
         if account_name:
             body["account_name"] = account_name
         body_str = json.dumps(body)
@@ -122,77 +236,39 @@ def fetch_transactions(request):
             response = requests.post(url, headers=headers, json=body)
             response.raise_for_status()
             data = response.json()
-            return JsonResponse(data)
+            total_records = data.get('total', len(data.get('data', [])))
+            total_pages = math.ceil(total_records / PER_PAGE)
+            return JsonResponse({
+                'transactions': data.get('data', []),
+                'totalPages': total_pages,
+                'perPage': PER_PAGE
+            })
         except requests.RequestException as e:
             return JsonResponse({'error': str(e)}, status=500)
 
     else:
-        # Use find-by-user endpoint with pagination
+        # Find-by-user endpoint with pagination
         endpoint = '/api/en/transaction/find-by-user'
         method = 'GET'
         body_str = ''
         headers['YAYA-API-SIGN'] = generate_signature(get_timestamp_ms(), method, endpoint, body_str)
-        params = {}
+        params = {'p': page, 'per_page': PER_PAGE}
         if account_name:
             params['account_name'] = account_name
-        params['p'] = page
         url = f"{YAYA_BASE_URL}{endpoint}"
         try:
             response = requests.get(url, headers=headers, params=params)
             response.raise_for_status()
             data = response.json()
-            return JsonResponse(data)
+            total_records = data.get('total', len(data.get('data', [])))
+            total_pages = math.ceil(total_records / PER_PAGE)
+            return JsonResponse({
+                'transactions': data.get('data', []),
+                'totalPages': total_pages,
+                'perPage': PER_PAGE
+            })
         except requests.RequestException as e:
             return JsonResponse({'error': str(e)}, status=500)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -83,6 +83,85 @@
 
 
 
+// import { useEffect } from "react";
+// import { useSelector, useDispatch } from "react-redux";
+// import { DataTable } from "../components/DataTable";
+// import SearchBar from "../components/SearchBar";
+// import type { AppDispatch, RootState } from "../store/store";
+// import { fetchTransactions, setPage, setQuery } from "../store/features/transactionSlice";
+
+// export default function Dashboard() {
+//   const dispatch = useDispatch<AppDispatch>();
+//   const currentAccount = "my-account"; // pretend logged-in user
+
+//   const { transactions, loading, error, page, totalPages, query } = useSelector(
+//     (state: RootState) => state.transactions
+//   );
+
+//   // Fetch transactions whenever page or query changes
+// //   useEffect(() => {
+// //     dispatch(fetchTransactions({ accountName: currentAccount, page, query }));
+// //   }, [dispatch, page, query]);
+
+
+// useEffect(() => {
+//   dispatch(fetchTransactions({ page, query }));
+// }, [dispatch, page, query]);
+
+//   // Handle search input
+//   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     dispatch(setQuery(e.target.value));
+//   };
+
+//   // Handle page change
+//   const handlePageChange = (newPage: number) => {
+//     if (newPage >= 1 && newPage <= totalPages) {
+//       dispatch(setPage(newPage));
+//     }
+//   };
+
+//   return (
+//     <div className="min-h-screen bg-white px-6 py-10">
+//       <h1 className="text-2xl font-bold mb-6 blue">Transactions Dashboard</h1>
+
+//       <div className="mb-6">
+//         <SearchBar
+//           placeholder="Search transactions..."
+//           value={query}
+//           onSearch={handleSearch}
+//         />
+//       </div>
+
+//       <DataTable rows={transactions} currentAccount={currentAccount} loading={loading} />
+
+//       {totalPages > 1 && (
+//         <div className="flex justify-center items-center mt-6 space-x-2">
+//           <button
+//             className="px-3 py-1 rounded-lg border border-gray-300 blue"
+//             onClick={() => handlePageChange(page - 1)}
+//             disabled={page === 1}
+//           >
+//             Prev
+//           </button>
+//           <span className="px-3 py-1">{page} / {totalPages}</span>
+//           <button
+//             className="px-3 py-1 rounded-lg border border-gray-300 blue"
+//             onClick={() => handlePageChange(page + 1)}
+//             disabled={page === totalPages}
+//           >
+//             Next
+//           </button>
+//         </div>
+//       )}
+
+//       {error && <p className="text-red-600 mt-4">{error}</p>}
+//     </div>
+//   );
+// }
+
+
+
+
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { DataTable } from "../components/DataTable";
@@ -99,14 +178,9 @@ export default function Dashboard() {
   );
 
   // Fetch transactions whenever page or query changes
-//   useEffect(() => {
-//     dispatch(fetchTransactions({ accountName: currentAccount, page, query }));
-//   }, [dispatch, page, query]);
-
-
-useEffect(() => {
-  dispatch(fetchTransactions({ page, query }));
-}, [dispatch, page, query]);
+  useEffect(() => {
+    dispatch(fetchTransactions({ page, query }));
+  }, [dispatch, page, query]);
 
   // Handle search input
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -118,6 +192,25 @@ useEffect(() => {
     if (newPage >= 1 && newPage <= totalPages) {
       dispatch(setPage(newPage));
     }
+  };
+
+  // Generate page buttons array
+  const renderPageButtons = () => {
+    const buttons = [];
+    for (let i = 1; i <= totalPages; i++) {
+      buttons.push(
+        <button
+          key={i}
+          className={`px-3 py-1 rounded-lg border border-gray-300 ${
+            i === page ? "bg-blue-500 text-white" : "blue"
+          }`}
+          onClick={() => handlePageChange(i)}
+        >
+          {i}
+        </button>
+      );
+    }
+    return buttons;
   };
 
   return (
@@ -132,7 +225,11 @@ useEffect(() => {
         />
       </div>
 
-      <DataTable rows={transactions} currentAccount={currentAccount} loading={loading} />
+      <DataTable
+        rows={transactions}
+        currentAccount={currentAccount}
+        loading={loading}
+      />
 
       {totalPages > 1 && (
         <div className="flex justify-center items-center mt-6 space-x-2">
@@ -143,7 +240,7 @@ useEffect(() => {
           >
             Prev
           </button>
-          <span className="px-3 py-1">{page} / {totalPages}</span>
+          {renderPageButtons()}
           <button
             className="px-3 py-1 rounded-lg border border-gray-300 blue"
             onClick={() => handlePageChange(page + 1)}
@@ -158,3 +255,10 @@ useEffect(() => {
     </div>
   );
 }
+
+
+
+
+
+
+
